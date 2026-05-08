@@ -16,7 +16,7 @@ interface CompanyStats {
 
 export const useCompanyStats = (companyName: string) => {
   const [stats, setStats] = useState<CompanyStats | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchStats = useCallback(async (page = 1) => {

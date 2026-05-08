@@ -5,10 +5,12 @@ import {
   getSalaries,
   getCompanyStats,
   compareSalaries,
+  getCompanies,
 } from "./../controllers/salaries.controller.ts";
 export const salaryRoutes: Router = express.Router();
 
 salaryRoutes.post("/ingest-salary", ingestSalary);
 salaryRoutes.get("/salaries", getSalaries);
+salaryRoutes.get("/companies", getCompanies);
 salaryRoutes.get("/compare", compareSalaries);
 salaryRoutes.get("/stats/:company", getCompanyStats);

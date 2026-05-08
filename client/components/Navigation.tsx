@@ -9,6 +9,7 @@ import { Button } from "./ui/button";
 
 const links = [
   { href: "/dashboard", label: "Dashboard" },
+  { href: "/company", label: "Companies" },
   { href: "/submit", label: "Submit Data" },
   { href: "/compare", label: "Compare" },
 ];
@@ -47,7 +48,7 @@ export const Navigation = () => {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="fixed inset-0 top-[65px] z-50 bg-background/95 backdrop-blur-xl md:hidden animate-in fade-in slide-in-from-right-full duration-300">
+        <div className="fixed inset-0 top-[65px] z-50 bg-black md:hidden animate-in fade-in slide-in-from-right-full duration-300">
           <nav className="flex flex-col p-8 space-y-8">
             {links.map((link) => (
               <Link
@@ -55,15 +56,15 @@ export const Navigation = () => {
                 href={link.href}
                 onClick={() => setIsOpen(false)}
                 className={cn(
-                  "text-3xl font-black tracking-tighter transition-colors",
-                  pathname === link.href ? "text-primary" : "text-muted-foreground"
+                  "text-3xl font-black tracking-tighter transition-colors text-white/70 hover:text-white",
+                  pathname === link.href ? "text-white" : "text-white/70"
                 )}
               >
                 {link.label}
               </Link>
             ))}
-            <div className="pt-8 border-t border-white/5">
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">Compensation Intelligence v1.0</p>
+            <div className="pt-8 border-t border-white/10">
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">Compensation Intelligence v1.0</p>
             </div>
           </nav>
         </div>

@@ -211,3 +211,15 @@ export const compareSalaries = async (
 
   return res.status(200).json(comparison);
 };
+
+export const getCompanies = async (
+  req: Request,
+  res: Response,
+): Promise<any> => {
+  const companies = await prisma.salary.findMany({
+    select: { company: true },
+    distinct: ["company"],
+    orderBy: { company: "asc" },
+  });
+  return res.status(200).json(companies.map((c) => c.company));
+};
