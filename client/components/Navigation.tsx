@@ -28,7 +28,9 @@ export const Navigation = () => {
             href={link.href}
             className={cn(
               "transition-all hover:text-primary",
-              pathname === link.href ? "text-primary underline underline-offset-8 decoration-2" : "text-muted-foreground"
+              pathname === link.href
+                ? "text-primary underline underline-offset-8 decoration-2"
+                : "text-muted-foreground",
             )}
           >
             {link.label}
@@ -37,10 +39,10 @@ export const Navigation = () => {
       </nav>
 
       {/* Mobile Toggle */}
-      <Button 
-        variant="ghost" 
-        size="icon" 
-        className="md:hidden rounded-xl bg-muted/50" 
+      <Button
+        variant="ghost"
+        size="icon"
+        className="md:hidden rounded-xl bg-muted/50"
         onClick={() => setIsOpen(!isOpen)}
       >
         {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -48,8 +50,8 @@ export const Navigation = () => {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="fixed inset-0 top-[65px] z-50 bg-black md:hidden animate-in fade-in slide-in-from-right-full duration-300">
-          <nav className="flex flex-col p-8 space-y-8">
+        <div className="fixed inset-0 top-[65px] z-50 md:hidden animate-in fade-in slide-in-from-right-full duration-300">
+          <nav className="flex flex-col p-8 space-y-8 bg-black">
             {links.map((link) => (
               <Link
                 key={link.href}
@@ -57,15 +59,12 @@ export const Navigation = () => {
                 onClick={() => setIsOpen(false)}
                 className={cn(
                   "text-3xl font-black tracking-tighter transition-colors text-white/70 hover:text-white",
-                  pathname === link.href ? "text-white" : "text-white/70"
+                  pathname === link.href ? "text-white" : "text-white/70",
                 )}
               >
                 {link.label}
               </Link>
             ))}
-            <div className="pt-8 border-t border-white/10">
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">Compensation Intelligence v1.0</p>
-            </div>
           </nav>
         </div>
       )}
