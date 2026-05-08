@@ -30,6 +30,9 @@ model Salary {
   totalCompensation Float
   confidenceScore   Float
 
+  currency           String @default("INR")
+  compensationPeriod String @default("YEARLY")
+
   createdAt DateTime @default(now())
 
   @@index([company])

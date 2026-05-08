@@ -61,5 +61,7 @@ export const buildFilterQuery = (query: any) => {
   if (query.role) where.role = (query.role as string).trim();
   if (query.level) where.level = normalizeLevel(query.level as string);
   if (query.location) where.location = (query.location as string).trim();
+  if (query.currency) where.currency = (query.currency as string).trim();
+  if (query.compensationPeriod) where.compensationPeriod = (query.compensationPeriod as string).trim();
   return where;
 };

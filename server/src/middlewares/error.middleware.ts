@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
+import { AppError } from "../errors/AppError.ts";
 import { ZodError } from "zod";
 
 export const errorHandler = (
@@ -6,20 +7,32 @@ export const errorHandler = (
   req: Request,
   res: Response,
   next: NextFunction,
-): any => {
-  console.error("Error encountered:", err);
+) => {
+  console.error(err);
 
+  // Zod validation errors
   if (err instanceof ZodError) {
-    const messages = err.errors.map((e) => `${e.path.join(".")}: ${e.message}`);
     return res.status(400).json({
       success: false,
       message: "Validation failed",
-      errors: messages,
+      errors: err.errors.map((e) => ({
+        field: e.path.join("."),
+        message: e.message,
+      })),
     });
   }
 
+  // App errors
+  if (err instanceof AppError) {
+    return res.status(err.statusCode).json({
+      success: false,
+      message: err.message,
+    });
+  }
+
+  // fallback
   return res.status(500).json({
     success: false,
-    message: err.message || "Internal server error",
+    message: "Internal server error",
   });
 };

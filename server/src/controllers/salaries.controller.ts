@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { standardizedLevel } from "../utils/level.util.ts";
 import { prisma } from "../../lib/prisma.ts";
+import { AppError } from "../errors/AppError.ts";
 import {
   computeConfidenceScore,
   computeTotalCompensation,
@@ -27,6 +28,8 @@ export const ingestSalary = async (
     bonus,
     stock,
     experienceYears,
+    currency,
+    compensationPeriod,
   } = validatedData;
 
   // Normalization
@@ -34,11 +37,7 @@ export const ingestSalary = async (
   const normalizedLevel = normalizeLevel(level);
 
   // Logic
-  const totalCompensation = computeTotalCompensation(
-    baseSalary,
-    bonus,
-    stock,
-  );
+  const totalCompensation = computeTotalCompensation(baseSalary, bonus, stock);
   let confidenceScore = computeConfidenceScore({
     baseSalary,
     bonus,
@@ -46,7 +45,7 @@ export const ingestSalary = async (
     experienceYears,
   });
   const levelStandardized = standardizedLevel(level);
-  
+
   const similarEntries = await prisma.salary.findMany({
     where: {
       company: normalizedCompany,
@@ -56,12 +55,12 @@ export const ingestSalary = async (
       location,
     },
   });
-  
+
   // reduce confidence score if similar entries are more than 5
   if (similarEntries.length >= 5) {
     confidenceScore = Math.max(0, confidenceScore - 0.1);
   }
-  
+
   // DB Storage
   const newSalary = await prisma.salary.create({
     data: {
@@ -76,6 +75,8 @@ export const ingestSalary = async (
       stock,
       totalCompensation,
       confidenceScore,
+      currency,
+      compensationPeriod,
     },
   });
 
@@ -90,7 +91,7 @@ export const getSalaries = async (
   res: Response,
 ): Promise<any> => {
   const where = buildFilterQuery(req.query);
-  
+
   const page = Math.max(1, parseInt(req.query.page as string) || 1);
   const limit = Math.max(1, parseInt(req.query.limit as string) || 10);
   const skip = (page - 1) * limit;
@@ -122,9 +123,7 @@ export const getCompanyStats = async (
 ): Promise<any> => {
   const { company } = req.params;
   if (!company) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Company parameter is required" });
+    throw new AppError(400, "Company parameter is required");
   }
 
   const normalizedCompany = normalizeCompany(company as string);
@@ -147,10 +146,7 @@ export const getCompanyStats = async (
   ]);
 
   if (allSalaries.length === 0) {
-    return res.status(404).json({
-      success: false,
-      message: "Company not found or no salaries available",
-    });
+    throw new AppError(404, "Company not found or no salaries available");
   }
 
   const total = allSalaries.length;
@@ -183,10 +179,7 @@ export const compareSalaries = async (
 ): Promise<any> => {
   const { id1, id2 } = req.query;
   if (!id1 || !id2 || typeof id1 !== "string" || typeof id2 !== "string") {
-    return res.status(400).json({
-      success: false,
-      message: "id1 and id2 query parameters are required",
-    });
+    throw new AppError(400, "id1 and id2 query parameters are required");
   }
 
   const [salary1, salary2] = await Promise.all([
@@ -195,9 +188,7 @@ export const compareSalaries = async (
   ]);
 
   if (!salary1 || !salary2) {
-    return res
-      .status(404)
-      .json({ success: false, message: "One or both salaries not found" });
+    throw new AppError(404, "One or both salaries not found");
   }
 
   const comparison = {
