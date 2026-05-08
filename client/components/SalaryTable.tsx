@@ -52,16 +52,17 @@ export const SalaryTable = () => {
     currentPage,
     toggleComparison,
     selectedForComparison,
+    clearComparison,
   } = useSalaryStore();
   const { goToPage } = useSalaries();
   const [viewingSalary, setViewingSalary] = useState<Salary | null>(null);
 
-  // Auto-redirect to compare page when 2 items are selected
-  useEffect(() => {
-    if (selectedForComparison.length === 2) {
-      router.push("/compare");
-    }
-  }, [selectedForComparison, router]);
+  // Auto-redirect removed per user request
+  // useEffect(() => {
+  //   if (selectedForComparison.length === 2) {
+  //     router.push("/compare");
+  //   }
+  // }, [selectedForComparison, router]);
 
   const maxTC =
     salaries.length > 0
@@ -390,6 +391,40 @@ export const SalaryTable = () => {
                   Close
                 </Button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Floating Compare Bar */}
+      {selectedForComparison.length > 0 && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 animate-in slide-in-from-bottom-8 duration-500">
+          <div className="bg-zinc-900 text-white px-6 py-4 rounded-3xl shadow-2xl flex items-center gap-6 border border-white/10 backdrop-blur-xl bg-opacity-95">
+            <div className="flex flex-col">
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">Intelligence Pool</span>
+              <span className="text-sm font-black italic">{selectedForComparison.length}/2 Records Selected</span>
+            </div>
+            <div className="h-10 w-[1px] bg-white/10" />
+            <div className="flex items-center gap-3">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={clearComparison}
+                className="text-xs font-bold hover:bg-white/5 h-10 rounded-xl px-4"
+              >
+                Reset
+              </Button>
+              <Button 
+                disabled={selectedForComparison.length < 2}
+                onClick={() => router.push("/compare")}
+                className={cn(
+                  "font-black rounded-xl h-12 px-8 transition-all duration-300 shadow-xl",
+                  selectedForComparison.length < 2 
+                    ? "bg-zinc-800 text-zinc-500 cursor-not-allowed" 
+                    : "bg-primary text-primary-foreground hover:scale-[1.05] active:scale-[0.95] shadow-primary/20"
+                )}
+              >
+                {selectedForComparison.length < 2 ? "Select 1 More" : "Compare Selected"}
+              </Button>
             </div>
           </div>
         </div>
