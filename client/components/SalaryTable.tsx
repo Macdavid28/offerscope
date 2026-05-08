@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { useSalaryStore } from "@/store/salaryStore";
@@ -42,19 +43,43 @@ const Badge = ({
   </span>
 );
 
-export const SalaryTable = () => {
+interface SalaryTableProps {
+  customSalaries?: Salary[];
+  customLoading?: boolean;
+  customTotalPages?: number;
+  customCurrentPage?: number;
+  onPageChange?: (page: number) => void;
+  hidePagination?: boolean;
+}
+
+export const SalaryTable = ({
+  customSalaries,
+  customLoading,
+  customTotalPages,
+  customCurrentPage,
+  onPageChange,
+  hidePagination = false,
+}: SalaryTableProps = {}) => {
   const router = useRouter();
   const {
-    salaries,
-    isLoading,
+    salaries: storeSalaries,
+    isLoading: storeLoading,
     isInitialLoading,
-    totalPages,
-    currentPage,
+    totalPages: storeTotalPages,
+    currentPage: storeCurrentPage,
     toggleComparison,
     selectedForComparison,
     clearComparison,
   } = useSalaryStore();
-  const { goToPage } = useSalaries();
+
+  const { goToPage: storeGoToPage } = useSalaries();
+  
+  const salaries = customSalaries ?? storeSalaries;
+  const isLoading = customLoading ?? storeLoading;
+  const totalPages = customTotalPages ?? storeTotalPages;
+  const currentPage = customCurrentPage ?? storeCurrentPage;
+  const goToPage = onPageChange ?? storeGoToPage;
+
   const [viewingSalary, setViewingSalary] = useState<Salary | null>(null);
 
   // Auto-redirect removed per user request
@@ -143,9 +168,12 @@ export const SalaryTable = () => {
                       )}
                     >
                       <td className="px-4 py-4">
-                        <div className="font-bold text-foreground capitalize">
+                        <Link 
+                          href={`/company/${salary.company.toLowerCase()}`}
+                          className="font-bold text-foreground capitalize hover:text-primary hover:underline transition-colors block"
+                        >
                           {salary.company}
-                        </div>
+                        </Link>
                         <div className="text-xs text-muted-foreground">
                           {new Date(salary.createdAt).toLocaleDateString()}
                         </div>
@@ -250,7 +278,7 @@ export const SalaryTable = () => {
         </div>
       </div>
 
-      {totalPages > 1 && (
+      {totalPages > 1 && !hidePagination && (
         <div className="flex items-center justify-between py-2 px-2">
           <div className="text-sm text-muted-foreground">
             Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong>
@@ -313,9 +341,9 @@ export const SalaryTable = () => {
 
       {/* Details Modal */}
       {viewingSalary && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-lg bg-card rounded-3xl shadow-2xl border overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="p-6 border-b bg-muted/30 flex justify-between items-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-8 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-md bg-card rounded-3xl shadow-2xl border overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[80vh]">
+            <div className="p-6 border-b bg-muted/30 flex justify-between items-center flex-shrink-0">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
                   <Info className="h-5 w-5" />
@@ -330,7 +358,7 @@ export const SalaryTable = () => {
               </Button>
             </div>
             
-            <div className="p-8 space-y-8">
+            <div className="p-8 space-y-8 overflow-y-auto custom-scrollbar">
               <div className="grid grid-cols-2 gap-8">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 text-muted-foreground">
