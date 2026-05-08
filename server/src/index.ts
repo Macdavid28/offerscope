@@ -3,6 +3,8 @@ import type { Request, Response } from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import { salaryRoutes } from "./routes/salaries.route.ts";
+import { errorHandler } from "./middlewares/error.middleware.ts";
+
 dotenv.config({
   path: "./.env",
 });
@@ -14,6 +16,9 @@ app.use("/api/v1/compensations", salaryRoutes);
 app.get("/", (req: Request, res: Response) => {
   res.send("<h1>Backend Running</h1>");
 });
+
+app.use(errorHandler);
+
 app.listen(3000, () => {
   console.log("The server is running on port 3000");
 });
