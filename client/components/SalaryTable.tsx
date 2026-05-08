@@ -1,32 +1,72 @@
-"use client";
-
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { useSalaryStore } from "@/store/salaryStore";
 import { useSalaries } from "@/hooks/useSalaries";
 import { cn } from "@/lib/utils";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, Briefcase, MapPin, DollarSign, Info } from "lucide-react";
 
-const Badge = ({ children, className }: { children: React.ReactNode, className?: string }) => (
-  <span className={cn("inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider", className)}>
+interface Salary {
+  id: string;
+  company: string;
+  role: string;
+  level: string;
+  levelStandardized: string;
+  location: string;
+  experienceYears: number;
+  baseSalary: number;
+  bonus: number;
+  stock: number;
+  totalCompensation: number;
+  confidenceScore: number;
+  currency: string;
+  compensationPeriod: string;
+  createdAt: string;
+}
+
+const Badge = ({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => (
+  <span
+    className={cn(
+      "inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
+      className,
+    )}
+  >
     {children}
   </span>
 );
 
 export const SalaryTable = () => {
-  const { 
-    salaries, 
-    isLoading, 
+  const router = useRouter();
+  const {
+    salaries,
+    isLoading,
     isInitialLoading,
-    totalPages, 
-    currentPage, 
-    toggleComparison, 
-    selectedForComparison 
+    totalPages,
+    currentPage,
+    toggleComparison,
+    selectedForComparison,
   } = useSalaryStore();
   const { goToPage } = useSalaries();
+  const [viewingSalary, setViewingSalary] = useState<Salary | null>(null);
 
-  // Highlight highest TC
-  const maxTC = salaries.length > 0 ? Math.max(...salaries.map(s => s.totalCompensation)) : 0;
+  // Auto-redirect to compare page when 2 items are selected
+  useEffect(() => {
+    if (selectedForComparison.length === 2) {
+      router.push("/compare");
+    }
+  }, [selectedForComparison, router]);
+
+  const maxTC =
+    salaries.length > 0
+      ? Math.max(...salaries.map((s) => s.totalCompensation))
+      : 0;
 
   if (isInitialLoading) {
     return (
@@ -72,31 +112,42 @@ export const SalaryTable = () => {
                 <th className="px-4 py-3 text-left font-bold">Role & Level</th>
                 <th className="px-4 py-3 text-left font-bold">Location</th>
                 <th className="px-4 py-3 text-center font-bold">Confidence</th>
-                <th className="px-4 py-3 text-right font-bold">Total Compensation</th>
-                <th className="px-4 py-3 text-center font-bold">Compare</th>
+                <th className="px-4 py-3 text-right font-bold">
+                  Total Compensation
+                </th>
+                <th className="px-4 py-3 text-center font-bold">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y">
               {salaries.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
+                  <td
+                    colSpan={6}
+                    className="px-4 py-12 text-center text-muted-foreground"
+                  >
                     No compensation data found.
                   </td>
                 </tr>
               ) : (
                 salaries.map((salary) => {
-                  const isHighest = salary.totalCompensation === maxTC && maxTC > 0;
+                  const isHighest =
+                    salary.totalCompensation === maxTC && maxTC > 0;
                   return (
-                    <tr 
-                      key={salary.id} 
+                    <tr
+                      key={salary.id}
                       className={cn(
                         "group transition-colors hover:bg-muted/30",
-                        isHighest && "bg-primary/5 hover:bg-primary/10 border-l-4 border-l-primary"
+                        isHighest &&
+                          "bg-primary/5 hover:bg-primary/10 border-l-4 border-l-primary",
                       )}
                     >
                       <td className="px-4 py-4">
-                        <div className="font-bold text-foreground capitalize">{salary.company}</div>
-                        <div className="text-xs text-muted-foreground">{new Date(salary.createdAt).toLocaleDateString()}</div>
+                        <div className="font-bold text-foreground capitalize">
+                          {salary.company}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {new Date(salary.createdAt).toLocaleDateString()}
+                        </div>
                       </td>
                       <td className="px-4 py-4">
                         <div className="flex flex-col gap-1">
@@ -113,17 +164,24 @@ export const SalaryTable = () => {
                           </div>
                         </div>
                       </td>
-                      <td className="px-4 py-4 text-muted-foreground italic">{salary.location}</td>
+                      <td className="px-4 py-4 text-muted-foreground">
+                        {salary.location}
+                      </td>
                       <td className="px-4 py-4">
                         <div className="flex flex-col items-center gap-1">
                           <div className="w-16 h-1.5 bg-secondary rounded-full overflow-hidden">
-                            <div 
+                            <div
                               className={cn(
                                 "h-full transition-all",
-                                salary.confidenceScore > 0.7 ? "bg-green-500" : 
-                                salary.confidenceScore > 0.4 ? "bg-yellow-500" : "bg-red-500"
+                                salary.confidenceScore > 0.7
+                                  ? "bg-green-500"
+                                  : salary.confidenceScore > 0.4
+                                    ? "bg-yellow-500"
+                                    : "bg-red-500",
                               )}
-                              style={{ width: `${salary.confidenceScore * 100}%` }}
+                              style={{
+                                width: `${salary.confidenceScore * 100}%`,
+                              }}
                             />
                           </div>
                           <span className="text-[10px] font-bold text-muted-foreground">
@@ -133,27 +191,54 @@ export const SalaryTable = () => {
                       </td>
                       <td className="px-4 py-4 text-right">
                         <div className="flex flex-col">
-                          <span className={cn(
-                            "text-lg font-black tracking-tight",
-                            isHighest ? "text-primary" : "text-foreground"
-                          )}>
-                            {salary.currency === 'INR' ? '₹' : salary.currency === 'EUR' ? '€' : salary.currency === 'GBP' ? '£' : '$'}
+                          <span
+                            className={cn(
+                              "text-lg font-black tracking-tight",
+                              isHighest ? "text-primary" : "text-foreground",
+                            )}
+                          >
+                            {salary.currency === "INR"
+                              ? "₹"
+                              : salary.currency === "EUR"
+                                ? "€"
+                                : salary.currency === "GBP"
+                                  ? "£"
+                                  : "$"}
                             {salary.totalCompensation.toLocaleString()}
                           </span>
                           <span className="text-[10px] text-muted-foreground uppercase font-bold">
-                            Per {salary.compensationPeriod.toLowerCase().replace('ly', '')}
+                            Per{" "}
+                            {salary.compensationPeriod
+                              .toLowerCase()
+                              .replace("ly", "")}
                           </span>
                         </div>
                       </td>
                       <td className="px-4 py-4 text-center">
-                        <Button
-                          variant={selectedForComparison.includes(salary.id) ? "default" : "outline"}
-                          size="sm"
-                          className="rounded-full font-bold h-8"
-                          onClick={() => toggleComparison(salary.id)}
-                        >
-                          {selectedForComparison.includes(salary.id) ? "Selected" : "Compare"}
-                        </Button>
+                        <div className="flex items-center justify-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setViewingSalary(salary)}
+                            className="h-8 text-xs font-bold rounded-full hover:bg-primary/10 hover:text-primary"
+                          >
+                            Details
+                          </Button>
+                          <Button
+                            variant={
+                              selectedForComparison.includes(salary.id)
+                                ? "default"
+                                : "outline"
+                            }
+                            size="sm"
+                            className="rounded-full font-bold h-8"
+                            onClick={() => toggleComparison(salary.id)}
+                          >
+                            {selectedForComparison.includes(salary.id)
+                              ? "Selected"
+                              : "Compare"}
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -183,9 +268,10 @@ export const SalaryTable = () => {
               {Array.from({ length: Math.min(5, totalPages) }).map((_, i) => {
                 let pageNum = currentPage;
                 if (currentPage <= 3) pageNum = i + 1;
-                else if (currentPage >= totalPages - 2) pageNum = totalPages - 4 + i;
+                else if (currentPage >= totalPages - 2)
+                  pageNum = totalPages - 4 + i;
                 else pageNum = currentPage - 2 + i;
-                
+
                 if (pageNum <= 0 || pageNum > totalPages) return null;
 
                 return (
@@ -214,12 +300,97 @@ export const SalaryTable = () => {
           </div>
         </div>
       )}
-      
+
       {isLoading && !isInitialLoading && (
         <div className="flex justify-center py-2">
           <div className="flex items-center gap-2 text-sm text-muted-foreground animate-pulse">
             <div className="h-2 w-2 rounded-full bg-primary" />
             Refreshing data...
+          </div>
+        </div>
+      )}
+
+      {/* Details Modal */}
+      {viewingSalary && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-lg bg-card rounded-3xl shadow-2xl border overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-6 border-b bg-muted/30 flex justify-between items-center">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                  <Info className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-black tracking-tight capitalize">{viewingSalary.company}</h3>
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Compensation Breakdown</p>
+                </div>
+              </div>
+              <Button variant="ghost" size="icon" onClick={() => setViewingSalary(null)} className="rounded-full">
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+            
+            <div className="p-8 space-y-8">
+              <div className="grid grid-cols-2 gap-8">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Briefcase className="h-3 w-3" />
+                    <span className="text-[10px] font-black uppercase tracking-wider">Role & Level</span>
+                  </div>
+                  <p className="font-bold">{viewingSalary.role}</p>
+                  <Badge className="bg-secondary/50 border-none">{viewingSalary.level} ({viewingSalary.levelStandardized})</Badge>
+                </div>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <MapPin className="h-3 w-3" />
+                    <span className="text-[10px] font-black uppercase tracking-wider">Location</span>
+                  </div>
+                  <p className="font-bold">{viewingSalary.location}</p>
+                </div>
+              </div>
+
+              <div className="space-y-4 pt-4 border-t border-dashed">
+                <div className="flex justify-between items-center p-3 rounded-xl bg-muted/20">
+                  <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Base Salary</span>
+                  <span className="font-mono font-bold">{viewingSalary.currency} {viewingSalary.baseSalary.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between items-center p-3 rounded-xl bg-muted/20">
+                  <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Annual Bonus</span>
+                  <span className="font-mono font-bold">{viewingSalary.currency} {viewingSalary.bonus.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between items-center p-3 rounded-xl bg-muted/20">
+                  <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Annual Stock (RSUs)</span>
+                  <span className="font-mono font-bold">{viewingSalary.currency} {viewingSalary.stock.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between items-center p-4 rounded-xl bg-primary/5 border border-primary/10 mt-2">
+                  <div className="flex items-center gap-2">
+                    <DollarSign className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-black uppercase tracking-widest text-primary">Total Comp</span>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-2xl font-black tracking-tighter text-primary">
+                      {viewingSalary.currency} {viewingSalary.totalCompensation.toLocaleString()}
+                    </p>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase">Per {viewingSalary.compensationPeriod.toLowerCase().replace('ly', '')}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <Button 
+                  className="flex-1 rounded-2xl h-12 font-bold" 
+                  onClick={() => {
+                    toggleComparison(viewingSalary.id);
+                    setViewingSalary(null);
+                  }}
+                  variant={selectedForComparison.includes(viewingSalary.id) ? "secondary" : "default"}
+                >
+                  {selectedForComparison.includes(viewingSalary.id) ? "Remove from Compare" : "Add to Comparison"}
+                </Button>
+                <Button variant="outline" className="rounded-2xl h-12 px-6 font-bold" onClick={() => setViewingSalary(null)}>
+                  Close
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       )}

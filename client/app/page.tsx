@@ -7,7 +7,7 @@ export default function LandingPage() {
     <div className="flex flex-col items-center justify-center min-h-[80vh] space-y-10 text-center">
       <div className="space-y-4 max-w-3xl">
         <h1 className="text-5xl md:text-7xl font-black tracking-tighter leading-none">
-          Unmask Your <span className="text-primary italic">True Worth.</span>
+          Unmask Your <span className="text-primary">True Worth.</span>
         </h1>
         <p className="text-xl text-muted-foreground">
           Real-time compensation intelligence for the modern workforce. 

@@ -101,9 +101,7 @@ export const SalaryForm = () => {
               intelligence pool.
             </p>
           </div>
-          <div className="p-4 rounded-xl bg-background/50 border border-muted font-mono text-xs">
-            ID: {result.id}
-          </div>
+
           <Button
             onClick={() => setResult(null)}
             className="rounded-full px-8 font-bold h-12 shadow-lg shadow-primary/20"
