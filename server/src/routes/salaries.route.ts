@@ -6,7 +6,7 @@ import {
   getCompanyStats,
   compareSalaries,
   getCompanies,
-} from "./../controllers/salaries.controller.ts";
+} from "./../controllers/salaries.controller";
 export const salaryRoutes: Router = express.Router();
 
 salaryRoutes.post("/ingest-salary", ingestSalary);

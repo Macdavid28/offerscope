@@ -3,8 +3,8 @@ import type { Request, Response } from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import { salaryRoutes } from "./routes/salaries.route.ts";
-import { errorHandler } from "./middlewares/error.middleware.ts";
+import { salaryRoutes } from "./routes/salaries.route";
+import { errorHandler } from "./middlewares/error.middleware";
 
 dotenv.config({
   path: "./.env",

@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
-import { standardizedLevel } from "../utils/level.util.ts";
-import { prisma } from "../../lib/prisma.ts";
-import { AppError } from "../errors/AppError.ts";
+import { standardizedLevel } from "../utils/level.util";
+import { prisma } from "../lib/prisma";
+import { AppError } from "../errors/AppError";
 import {
   computeConfidenceScore,
   computeTotalCompensation,
@@ -12,8 +12,8 @@ import {
   calculatePercentileValue,
   normalizeCompensation,
   getLevelScore,
-} from "../utils/salary.utils.ts";
-import { ingestSalarySchema } from "../schemas/salary.schema.ts";
+} from "../utils/salary.utils";
+import { ingestSalarySchema } from "../schemas/salary.schema";
 
 export const ingestSalary = async (
   req: Request,
