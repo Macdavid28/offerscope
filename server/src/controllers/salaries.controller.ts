@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
-import { standardizedLevel } from "../utils/level.util";
-import { prisma } from "../lib/prisma";
-import { AppError } from "../errors/AppError";
+import { standardizedLevel } from "../utils/level.util.js";
+import { prisma } from "../lib/prisma.js";
+import { AppError } from "../errors/AppError.js";
 import {
   computeConfidenceScore,
   computeTotalCompensation,
@@ -12,8 +12,8 @@ import {
   calculatePercentileValue,
   normalizeCompensation,
   getLevelScore,
-} from "../utils/salary.utils";
-import { ingestSalarySchema } from "../schemas/salary.schema";
+} from "../utils/salary.utils.js";
+import { ingestSalarySchema } from "../schemas/salary.schema.js";
 
 export const ingestSalary = async (
   req: Request,
@@ -114,9 +114,9 @@ export const getSalaries = async (
     new Set(salaries.map((s) => `${s.company}|${s.levelStandardized}`)),
   ).map((pair) => {
     const [company, levelStandardized] = pair.split("|");
-    return { 
-      company: company as string, 
-      levelStandardized: levelStandardized as string 
+    return {
+      company: company as string,
+      levelStandardized: levelStandardized as string,
     };
   });
 
