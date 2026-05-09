@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { cn, getCurrencySymbol } from "@/lib/utils";
 import { AlertTriangle, TrendingUp, Trophy } from "lucide-react";
 
 interface ComparePanelProps {
@@ -68,7 +68,7 @@ const SalaryCard = ({
             Base Salary
           </span>
           <span className="font-bold">
-            {salary.currency === "INR" ? "₹" : "$"}
+            {getCurrencySymbol(salary.currency)}
             {salary.baseSalary.toLocaleString()}
           </span>
         </div>
@@ -77,7 +77,7 @@ const SalaryCard = ({
             Bonus + Stock
           </span>
           <span className="font-bold">
-            {salary.currency === "INR" ? "₹" : "$"}
+            {getCurrencySymbol(salary.currency)}
             {(salary.bonus + salary.stock).toLocaleString()}
           </span>
         </div>
@@ -94,7 +94,7 @@ const SalaryCard = ({
               isHigher ? "text-primary" : "text-foreground",
             )}
           >
-            {salary.currency === "INR" ? "₹" : "$"}
+            {getCurrencySymbol(salary.currency)}
             {salary.totalCompensation.toLocaleString()}
           </span>
           <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
@@ -157,7 +157,7 @@ export const ComparePanel = ({
               </span>
               <div className="flex items-baseline gap-2">
                 <span className="text-6xl font-black tracking-tighter text-foreground">
-                  ${difference.totalCompensation.toLocaleString()}
+                  {getCurrencySymbol(salary1.currency)}{difference.totalCompensation.toLocaleString()}
                 </span>
                 <div className="flex items-center gap-1 text-green-600 bg-green-50 px-3 py-1 rounded-full border border-green-100">
                   <TrendingUp className="h-4 w-4" />

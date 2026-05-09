@@ -45,20 +45,16 @@ export type SalaryFormData = yup.InferType<typeof salarySchema>;
 
 // Helper to normalize the data before sending to backend
 export const normalizeSalaryData = (data: SalaryFormData) => {
-  const multiplier = data.payFrequency === "monthly" ? 12 : 1;
-
-  // Simple conversion rates (static for demo)
-
-  const rate = CURRENCY_RATES[data.currency] ?? 1;
-
   return {
     company: data.company,
     role: data.role,
     level: data.level,
     location: data.location,
     experienceYears: data.experienceYears,
-    baseSalary: data.rawBaseSalary * multiplier * rate,
-    bonus: (data.rawBonus || 0) * rate, // Bonus usually annual, but rate applies
-    stock: (data.rawStock || 0) * rate, // Stock usually annual, but rate applies
+    baseSalary: data.rawBaseSalary,
+    bonus: data.rawBonus || 0,
+    stock: data.rawStock || 0,
+    currency: data.currency,
+    compensationPeriod: data.payFrequency === "monthly" ? "MONTHLY" : "YEARLY",
   };
 };

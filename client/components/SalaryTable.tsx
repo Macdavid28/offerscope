@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { useSalaryStore } from "@/store/salaryStore";
 import { useSalaries } from "@/hooks/useSalaries";
-import { cn } from "@/lib/utils";
+import { cn, getCurrencySymbol } from "@/lib/utils";
 import { ChevronLeft, ChevronRight, X, Briefcase, MapPin, DollarSign, Info } from "lucide-react";
 
 interface Salary {
@@ -226,13 +226,7 @@ export const SalaryTable = ({
                               isHighest ? "text-primary" : "text-foreground",
                             )}
                           >
-                            {salary.currency === "INR"
-                              ? "₹"
-                              : salary.currency === "EUR"
-                                ? "€"
-                                : salary.currency === "GBP"
-                                  ? "£"
-                                  : "$"}
+                            {getCurrencySymbol(salary.currency)}
                             {salary.totalCompensation.toLocaleString()}
                           </span>
                           <span className="text-[10px] text-muted-foreground uppercase font-bold">
