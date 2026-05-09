@@ -146,16 +146,65 @@ export const getLevelStrength = (
   return `${prefix} ${standardized}`;
 };
 
+const BACKEND_CURRENCY_RATES: Record<string, number> = {
+  USD: 1,
+  EUR: 1.08,
+  GBP: 1.27,
+  INR: 0.012,
+  CHF: 1.12,
+  CAD: 0.73,
+  AUD: 0.66,
+  SGD: 0.74,
+  JPY: 0.0067,
+  CNY: 0.14,
+  NGN: 0.00065,
+  ZAR: 0.053,
+  AED: 0.27,
+  SAR: 0.27,
+  RUB: 0.011,
+};
+
+export const normalizeCompensation = (salary: any) => {
+  const period = (salary.compensationPeriod || "YEARLY").toUpperCase();
+  const periodMultiplier = period === "MONTHLY" ? 12 : 1;
+  const currency = salary.currency || "USD";
+  const fxRate = BACKEND_CURRENCY_RATES[currency] || 1;
+
+  // STEP 1 & 2: Normalize Time and Compute Total Annual (Raw Currency)
+  const annualBase = (salary.baseSalary || 0) * periodMultiplier;
+  const annualBonus = (salary.bonus || 0) * periodMultiplier;
+  const annualStock = (salary.stock || 0) * periodMultiplier;
+  const totalAnnual = annualBase + annualBonus + annualStock;
+
+  // STEP 3: Convert to USD
+  const totalUSD = totalAnnual * fxRate;
+
+  return {
+    totalAnnual,
+    totalUSD,
+    currencyUsed: currency,
+    periodNormalized: "YEARLY",
+  };
+};
+
 export const enrichSalary = (salary: any, peerSalaries: any[]) => {
-  const totalComps = peerSalaries.map((s) => s.totalCompensation);
-  const percentileRank = calculatePercentile(salary.totalCompensation, totalComps);
+  const normalizedSelf = normalizeCompensation(salary);
+  
+  // Peer percentiles must use normalized USD values for global accuracy
+  const peerUSDValues = peerSalaries.map(s => normalizeCompensation(s).totalUSD);
+  
+  const percentileRank = calculatePercentile(normalizedSelf.totalUSD, peerUSDValues);
   const levelScore = getLevelScore(salary.levelStandardized);
   const levelStrength = getLevelStrength(salary.levelStandardized, percentileRank);
 
   return {
     ...salary,
+    ...normalizedSelf,
     levelScore,
     percentileRank,
     levelStrength,
   };
 };
+
+// Deprecated in favor of normalizeCompensation
+export const normalizeToUSD = normalizeCompensation;

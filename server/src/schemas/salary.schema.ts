@@ -12,7 +12,7 @@ export const ingestSalarySchema = z.object({
   bonus: z.number().min(0, "Bonus cannot be negative").default(0),
   stock: z.number().min(0, "Stock cannot be negative").default(0),
 
-  currency: z.string().trim().default("INR"),
+  currency: z.string().trim().default("USD"),
   compensationPeriod: z.string().trim().default("YEARLY"),
 });
 

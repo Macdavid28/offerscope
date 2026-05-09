@@ -10,6 +10,8 @@ import {
   buildFilterQuery,
   enrichSalary,
   calculatePercentileValue,
+  normalizeCompensation,
+  getLevelScore,
 } from "../utils/salary.utils.ts";
 import { ingestSalarySchema } from "../schemas/salary.schema.ts";
 
@@ -178,28 +180,30 @@ export const getCompanyStats = async (
   }
 
   const total = allSalaries.length;
-  const totalComps = allSalaries.map((s) => s.totalCompensation);
-  const median = calculatePercentileValue(totalComps, 50);
-  const p75 = calculatePercentileValue(totalComps, 75);
-  const p90 = calculatePercentileValue(totalComps, 90);
+  // Use normalized USD values for global median/percentile accuracy
+  const totalUSDComps = allSalaries.map((s) => normalizeCompensation(s).totalUSD);
+  const medianUSD = calculatePercentileValue(totalUSDComps, 50);
+  const p75USD = calculatePercentileValue(totalUSDComps, 75);
+  const p90USD = calculatePercentileValue(totalUSDComps, 90);
 
   const levels = allSalaries.reduce((acc: Record<string, any>, curr) => {
     if (!acc[curr.levelStandardized]) {
-      acc[curr.levelStandardized] = { count: 0, salaries: [] };
+      acc[curr.levelStandardized] = { count: 0, usdSalaries: [] };
     }
     acc[curr.levelStandardized].count++;
-    acc[curr.levelStandardized].salaries.push(curr.totalCompensation);
+    acc[curr.levelStandardized].usdSalaries.push(normalizeCompensation(curr).totalUSD);
     return acc;
   }, {});
 
-  // Add stats per level
+  // Add stats per level (using normalized USD)
   const levelStats = Object.keys(levels).reduce((acc: any, key) => {
-    const comps = levels[key].salaries;
+    const usdComps = levels[key].usdSalaries;
     acc[key] = {
       count: levels[key].count,
-      p50: calculatePercentileValue(comps, 50),
-      p75: calculatePercentileValue(comps, 75),
-      p90: calculatePercentileValue(comps, 90),
+      p50: calculatePercentileValue(usdComps, 50),
+      p75: calculatePercentileValue(usdComps, 75),
+      p90: calculatePercentileValue(usdComps, 90),
+      currencyUsed: "USD",
     };
     return acc;
   }, {});
@@ -214,10 +218,11 @@ export const getCompanyStats = async (
   return res.status(200).json({
     company: normalizedCompany,
     stats: {
-      median,
-      p75,
-      p90,
+      median: medianUSD,
+      p75: p75USD,
+      p90: p90USD,
       total,
+      currencyUsed: "USD",
     },
     levels: levelStats,
     salaries: enrichedPaginated,
@@ -268,47 +273,50 @@ export const compareSalaries = async (
   const enriched1 = enrichSalary(salary1, peers1);
   const enriched2 = enrichSalary(salary2, peers2);
 
-  const diffTC = enriched1.totalCompensation - enriched2.totalCompensation;
-  const compDifferencePercentage =
-    Math.round(
-      (Math.abs(diffTC) /
-        Math.min(enriched1.totalCompensation, enriched2.totalCompensation)) *
-        100,
-    ) || 0;
+  // STEP 1-3: Normalize both salaries using the central pipeline
+  const norm1 = normalizeCompensation(salary1);
+  const norm2 = normalizeCompensation(salary2);
 
-  // Decision Intelligence Logic
-  const score1 = enriched1.totalCompensation * (enriched1.percentileRank / 100);
-  const score2 = enriched2.totalCompensation * (enriched2.percentileRank / 100);
+  // Decision Logic
+  const winner = norm1.totalUSD > norm2.totalUSD ? "salary1" : "salary2";
+  const diffUSD = Math.abs(norm1.totalUSD - norm2.totalUSD);
+  const minUSD = Math.min(norm1.totalUSD, norm2.totalUSD);
+  const diffPercent = minUSD > 0 ? Math.round((diffUSD / minUSD) * 100) : 0;
 
-  const winner =
-    enriched1.totalCompensation > enriched2.totalCompensation
-      ? enriched1.id
-      : enriched2.id;
-
-  let levelGapInsight = "Equivalent Level Strength";
-  const levelDiff = enriched1.levelScore - enriched2.levelScore;
-
-  if (levelDiff > 0) {
-    levelGapInsight = `${enriched1.company} offer is for a higher standardized level`;
-  } else if (levelDiff < 0) {
-    levelGapInsight = `${enriched2.company} offer is for a higher standardized level`;
-  } else {
-    // Same level, compare strength
-    if (enriched1.percentileRank > enriched2.percentileRank + 15) {
-      levelGapInsight = `Stronger offer from ${enriched1.company} at equivalent level`;
-    } else if (enriched2.percentileRank > enriched1.percentileRank + 15) {
-      levelGapInsight = `Stronger offer from ${enriched2.company} at equivalent level`;
-    }
-  }
+  const winnerSalary = winner === "salary1" ? salary1 : salary2;
+  const loserSalary = winner === "salary1" ? salary2 : salary1;
+  const reasoning = `${winnerSalary.company} offers a mathematically superior package with an annualized value of $${Math.round(Math.max(norm1.totalUSD, norm2.totalUSD)).toLocaleString()} USD, which is ${diffPercent}% higher than ${loserSalary.company}.`;
 
   const comparison = {
     salary1: enriched1,
     salary2: enriched2,
-    difference: {
-      totalCompensation: Math.abs(diffTC),
-      compDifferencePercentage,
-      levelGapInsight,
+
+    normalized: {
+      salary1: {
+        totalAnnual: norm1.totalAnnual,
+        totalUSD: norm1.totalUSD,
+        currencyUsed: norm1.currencyUsed,
+      },
+      salary2: {
+        totalAnnual: norm2.totalAnnual,
+        totalUSD: norm2.totalUSD,
+        currencyUsed: norm2.currencyUsed,
+      },
+    },
+
+    comparison: {
       winner,
+      differenceUSD: diffUSD,
+      differencePercentage: diffPercent,
+      reasoning,
+    },
+
+    // Backward compatibility for existing UI
+    difference: {
+      totalCompensation: diffUSD,
+      compDifferencePercentage: diffPercent,
+      levelGapInsight: reasoning,
+      winner: winner === "salary1" ? salary1.id : salary2.id,
       level1: {
         raw: salary1.level,
         standardized: salary1.levelStandardized,

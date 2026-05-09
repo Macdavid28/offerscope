@@ -68,6 +68,8 @@ export default function ComparePage() {
           salary1={result.salary1} 
           salary2={result.salary2} 
           difference={result.difference} 
+          normalized={result.normalized}
+          comparison={result.comparison}
         />
       )}
     </div>

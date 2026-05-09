@@ -7,19 +7,27 @@ import { AlertTriangle, TrendingUp, Trophy } from "lucide-react";
 interface ComparePanelProps {
   salary1: any;
   salary2: any;
-  difference: {
-    totalCompensation: number;
-    level1: { raw: string; standardized: string };
-    level2: { raw: string; standardized: string };
+  difference: any;
+  normalized?: {
+    salary1: { totalAnnual: number; totalUSD: number; currencyUsed: string };
+    salary2: { totalAnnual: number; totalUSD: number; currencyUsed: string };
+  };
+  comparison?: {
+    winner: "salary1" | "salary2";
+    differenceUSD: number;
+    differencePercentage: number;
+    reasoning: string;
   };
 }
 
 const SalaryCard = ({
   salary,
   isHigher,
+  normalizedData,
 }: {
   salary: any;
   isHigher: boolean;
+  normalizedData?: { totalAnnual: number; totalUSD: number; currencyUsed: string };
 }) => (
   <Card
     className={cn(
@@ -83,24 +91,37 @@ const SalaryCard = ({
         </div>
       </div>
 
-      <div className="pt-2">
-        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">
-          Total Compensation
-        </p>
-        <div className="flex items-baseline gap-1">
-          <span
-            className={cn(
-              "text-4xl font-black tracking-tighter",
-              isHigher ? "text-primary" : "text-foreground",
-            )}
-          >
-            {getCurrencySymbol(salary.currency)}
-            {salary.totalCompensation.toLocaleString()}
-          </span>
-          <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
-            / {salary.compensationPeriod.toLowerCase().replace("ly", "")}
-          </span>
+      <div className="pt-2 border-t pt-4">
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">
+              Raw Total
+            </p>
+            <div className="flex items-baseline gap-1">
+              <span className="text-2xl font-black tracking-tighter">
+                {getCurrencySymbol(salary.currency)}
+                {salary.totalCompensation.toLocaleString()}
+              </span>
+              <span className="text-[10px] font-bold text-muted-foreground uppercase">
+                / {salary.compensationPeriod.toLowerCase().replace("ly", "")}
+              </span>
+            </div>
+          </div>
         </div>
+
+        {normalizedData && (
+          <div className="p-4 rounded-2xl bg-primary/5 border border-primary/10">
+            <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-1">
+              Global Annualized (USD)
+            </p>
+            <p className="text-3xl font-black tracking-tighter text-primary">
+              ${Math.round(normalizedData.totalUSD).toLocaleString()}
+            </p>
+            <p className="text-[9px] font-bold text-primary/60 uppercase mt-1">
+              Normalized for comparison
+            </p>
+          </div>
+        )}
       </div>
     </CardContent>
   </Card>
@@ -110,40 +131,33 @@ export const ComparePanel = ({
   salary1,
   salary2,
   difference,
+  normalized,
+  comparison,
 }: ComparePanelProps) => {
-  const isS1Higher = salary1.totalCompensation > salary2.totalCompensation;
-  const minTC = Math.min(salary1.totalCompensation, salary2.totalCompensation);
-  const percentDiff =
-    minTC > 0 ? Math.round((difference.totalCompensation / minTC) * 100) : 0;
-
-  const currencyMismatch = salary1.currency !== salary2.currency;
-  const periodMismatch =
-    salary1.compensationPeriod !== salary2.compensationPeriod;
+  // Use backend's intelligence if available, fallback to legacy raw comparison
+  const isS1Higher = comparison ? comparison.winner === "salary1" : salary1.totalCompensation > salary2.totalCompensation;
+  const percentDiff = comparison ? comparison.differencePercentage : difference.compDifferencePercentage;
+  const reasoning = comparison ? comparison.reasoning : difference.levelGapInsight;
 
   return (
     <div className="space-y-10">
-      {(currencyMismatch || periodMismatch) && (
-        <div className="flex items-center gap-3 p-4 bg-orange-50 border border-orange-200 rounded-2xl text-orange-800 animate-in fade-in slide-in-from-top-4">
-          <AlertTriangle className="h-5 w-5 shrink-0" />
-          <div className="text-sm font-bold uppercase tracking-tight">
-            Comparison Mismatch:
-            {currencyMismatch && ` ${salary1.currency} vs ${salary2.currency}`}
-            {currencyMismatch && periodMismatch && " | "}
-            {periodMismatch &&
-              ` ${salary1.compensationPeriod} vs ${salary2.compensationPeriod}`}
-          </div>
-        </div>
-      )}
-
       <div className="flex flex-col lg:flex-row gap-8 relative">
-        <SalaryCard salary={salary1} isHigher={isS1Higher} />
+        <SalaryCard 
+          salary={salary1} 
+          isHigher={isS1Higher} 
+          normalizedData={normalized?.salary1}
+        />
         <div className="flex items-center justify-center relative">
           <div className="h-14 w-14 rounded-full bg-background border-4 border-muted flex items-center justify-center font-black text-xl shadow-xl z-20">
             VS
           </div>
           <div className="hidden lg:block absolute h-full w-[2px] bg-gradient-to-b from-transparent via-muted to-transparent" />
         </div>
-        <SalaryCard salary={salary2} isHigher={!isS1Higher} />
+        <SalaryCard 
+          salary={salary2} 
+          isHigher={!isS1Higher} 
+          normalizedData={normalized?.salary2}
+        />
       </div>
 
       <div className="relative">
@@ -153,11 +167,11 @@ export const ComparePanel = ({
           <CardContent className="p-10 flex flex-col items-center text-center space-y-6">
             <div className="flex flex-col items-center">
               <span className="px-4 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.2em] mb-4">
-                Compensation Delta
+                Global Intelligence Analysis
               </span>
               <div className="flex items-baseline gap-2">
                 <span className="text-6xl font-black tracking-tighter text-foreground">
-                  {getCurrencySymbol(salary1.currency)}{difference.totalCompensation.toLocaleString()}
+                  {comparison ? `$${Math.round(comparison.differenceUSD).toLocaleString()}` : `${getCurrencySymbol(salary1.currency)}${difference.totalCompensation.toLocaleString()}`}
                 </span>
                 <div className="flex items-center gap-1 text-green-600 bg-green-50 px-3 py-1 rounded-full border border-green-100">
                   <TrendingUp className="h-4 w-4" />
@@ -167,14 +181,7 @@ export const ComparePanel = ({
             </div>
 
             <p className="text-xl font-medium text-muted-foreground max-w-2xl leading-relaxed">
-              <span className="font-black text-foreground capitalize">
-                {isS1Higher ? salary1.company : salary2.company}
-              </span>{" "}
-              offers a significantly higher package, with a{" "}
-              <span className="text-primary font-black">
-                {percentDiff}% increase
-              </span>{" "}
-              compared to {isS1Higher ? salary2.company : salary1.company}.
+              {reasoning}
             </p>
           </CardContent>
         </Card>
