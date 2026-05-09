@@ -15,7 +15,7 @@ export const errorHandler = (
     return res.status(400).json({
       success: false,
       message: "Validation failed",
-      errors: err.errors.map((e) => ({
+      errors: err.issues.map((e) => ({
         field: e.path.join("."),
         message: e.message,
       })),

@@ -114,7 +114,10 @@ export const getSalaries = async (
     new Set(salaries.map((s) => `${s.company}|${s.levelStandardized}`)),
   ).map((pair) => {
     const [company, levelStandardized] = pair.split("|");
-    return { company, levelStandardized };
+    return { 
+      company: company as string, 
+      levelStandardized: levelStandardized as string 
+    };
   });
 
   const peerData = await prisma.salary.findMany({
