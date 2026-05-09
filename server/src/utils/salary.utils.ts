@@ -57,11 +57,105 @@ export const computeConfidenceScore = (input: {
 
 export const buildFilterQuery = (query: any) => {
   const where: any = {};
-  if (query.company) where.company = normalizeCompany(query.company as string);
-  if (query.role) where.role = (query.role as string).trim();
-  if (query.level) where.level = normalizeLevel(query.level as string);
-  if (query.location) where.location = (query.location as string).trim();
-  if (query.currency) where.currency = (query.currency as string).trim();
-  if (query.compensationPeriod) where.compensationPeriod = (query.compensationPeriod as string).trim();
+
+  if (query.company) {
+    where.company = {
+      contains: normalizeCompany(query.company as string),
+      mode: "insensitive",
+    };
+  }
+
+  if (query.role) {
+    where.role = {
+      contains: (query.role as string).trim(),
+      mode: "insensitive",
+    };
+  }
+
+  if (query.location) {
+    where.location = {
+      contains: (query.location as string).trim(),
+      mode: "insensitive",
+    };
+  }
+
+  if (query.level) {
+    const levelVal = (query.level as string).trim();
+    where.OR = [
+      { level: normalizeLevel(levelVal) },
+      { levelStandardized: levelVal },
+    ];
+  }
+
+  if (query.currency) {
+    where.currency = (query.currency as string).trim();
+  }
+
+  if (query.compensationPeriod) {
+    where.compensationPeriod = (query.compensationPeriod as string).trim();
+  }
+
   return where;
+};
+
+export const getLevelScore = (standardized: string): number => {
+  const scores: Record<string, number> = {
+    Junior: 1,
+    Mid: 2,
+    Senior: 3,
+    Staff: 4,
+  };
+  return scores[standardized] || 0;
+};
+
+export const calculatePercentile = (
+  value: number,
+  allValues: number[],
+): number => {
+  if (allValues.length === 0) return 0;
+  // Use a more standard percentile formula: (number of values below + 0.5) / n * 100
+  const below = allValues.filter((v) => v < value).length;
+  const same = allValues.filter((v) => v === value).length;
+  return Math.round(((below + same / 2) / allValues.length) * 100);
+};
+
+export const calculatePercentileValue = (
+  values: number[],
+  percentile: number,
+): number => {
+  if (values.length === 0) return 0;
+  const sorted = [...values].sort((a, b) => a - b);
+  const index = (percentile / 100) * (sorted.length - 1);
+  const lower = Math.floor(index);
+  const upper = Math.ceil(index);
+  const weight = index - lower;
+
+  if (lower === upper) return sorted[lower] ?? 0;
+  return (sorted[lower] ?? 0) * (1 - weight) + (sorted[upper] ?? 0) * weight;
+};
+
+export const getLevelStrength = (
+  standardized: string,
+  percentile: number,
+): string => {
+  let prefix = "Mid";
+  if (percentile < 25) prefix = "Low";
+  else if (percentile > 75) prefix = "Strong";
+  else if (percentile > 90) prefix = "Elite";
+
+  return `${prefix} ${standardized}`;
+};
+
+export const enrichSalary = (salary: any, peerSalaries: any[]) => {
+  const totalComps = peerSalaries.map((s) => s.totalCompensation);
+  const percentileRank = calculatePercentile(salary.totalCompensation, totalComps);
+  const levelScore = getLevelScore(salary.levelStandardized);
+  const levelStrength = getLevelStrength(salary.levelStandardized, percentileRank);
+
+  return {
+    ...salary,
+    levelScore,
+    percentileRank,
+    levelStrength,
+  };
 };

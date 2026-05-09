@@ -1,7 +1,8 @@
 export const standardizedLevel = (level: string): string => {
-  const normalizedLevel = level.trim().toLowerCase();
-  if (
-    [
+  const normalizedLevel = level.trim().toLowerCase().replace(/[-_]/g, " ");
+
+  const LEVEL_MAP: Record<string, string[]> = {
+    Junior: [
       "l1",
       "l2",
       "l3",
@@ -10,40 +11,33 @@ export const standardizedLevel = (level: string): string => {
       "sde1",
       "junior engineer",
       "junior developer",
-    ].includes(normalizedLevel)
-  ) {
-    return "Junior";
-  }
-  if (
-    [
+      "associate",
+      "fresher",
+      "trainee",
+    ],
+    Mid: [
       "l4",
       "l5",
       "e3",
-      "e4",
       "sde2",
+      "sde3",
       "mid engineer",
       "mid level developer",
       "mid developer",
-    ].includes(normalizedLevel)
-  ) {
-    return "Mid";
-  }
-  if (
-    [
+      "software engineer 2",
+    ],
+    Senior: [
       "l6",
       "l7",
       "l8",
+      "e4",
       "e5",
-      "sde3",
       "sde4",
       "senior engineer",
       "senior developer",
-    ].includes(normalizedLevel)
-  ) {
-    return "Senior";
-  }
-  if (
-    [
+      "lead",
+    ],
+    Staff: [
       "l9",
       "l10",
       "e6",
@@ -54,9 +48,15 @@ export const standardizedLevel = (level: string): string => {
       "principal developer",
       "staff engineer",
       "staff developer",
-    ].includes(normalizedLevel)
-  ) {
-    return "Staff";
+      "architect",
+      "distinguished",
+    ],
+  };
+
+  for (const [standardLevel, aliases] of Object.entries(LEVEL_MAP)) {
+    const match = aliases.some((alias) => normalizedLevel.includes(alias));
+
+    if (match) return standardLevel;
   }
 
   return "Unknown";

@@ -109,10 +109,7 @@ export default function CompaniesPage() {
                   Be the first to contribute intelligence for this organization.
                 </p>
               </div>
-              <Button
-                asChild
-                className="rounded-2xl h-14 px-10 font-bold text-lg shadow-xl shadow-primary/20 hover:scale-105 transition-transform"
-              >
+              <Button className="rounded-2xl h-14 px-10 font-bold text-lg shadow-xl shadow-primary/20 hover:scale-105 transition-transform">
                 <Link href="/submit">
                   <TrendingUp className="h-5 w-5 mr-2" />
                   Contribute Now

@@ -1,6 +1,186 @@
+# Research & Reverse Engineering
+
+## Reverse Engineered Platforms
+
+* Levels.fyi
+* Glassdoor
+* AmbitionBox
+* 6figr
+
+---
+
+# 1. Salary Listing Pages
+
+## Observations
+
+* Listings are heavily **filter-driven** (company, role, location, level).
+* Data is **aggregated and normalized**, not raw submissions.
+* Total compensation is always the **primary ranking signal**.
+* Entry-level noise is reduced via confidence scoring / verification heuristics.
+
+## What works
+
+* Clean hierarchical structure (Company → Role → Level → Pay)
+* Strong filtering experience (fast narrowing of datasets)
+* Clear compensation hierarchy visibility
+
+## What fails
+
+* Overwhelming data density on large datasets
+* Hard to understand salary reliability without context
+* Some platforms mix outdated and recent data without clarity
+
+## Key Differences
+
+* Levels.fyi → highly structured, engineering-focused
+* Glassdoor → broader but noisy and less precise
+* 6figr → more modern filtering but smaller dataset
+
+## Gaps
+
+* Weak explanation of data quality
+* Lack of transparency in how "averages" are computed
+* Poor handling of duplicate or near-duplicate entries
+
+---
+
+# 2. Company Pages
+
+## Observations
+
+* Company pages act as **aggregated intelligence dashboards**
+* Focus areas:
+
+  * Median compensation
+  * Distribution by level
+  * Role breakdowns
+* Companies become the primary navigation unit
+
+## What works
+
+* Median compensation gives fast snapshot understanding
+* Level distribution provides career mapping clarity
+* Easy comparison across companies
+
+## What fails
+
+* Static aggregation (not real-time or dynamic enough)
+* Limited filtering inside company view
+* Poor handling of global compensation differences (currency, region)
+
+## Key Differences
+
+* Levels.fyi → structured engineering ladder view
+* Glassdoor → review-heavy, less quantitative depth
+* AmbitionBox → India-focused, weaker global normalization
+
+## Gaps
+
+* No standardized global compensation model
+* Weak handling of multiple currencies and pay periods
+* Limited decision intelligence (mostly descriptive, not actionable)
+
+---
+
+# 3. Submission Flows
+
+## Observations
+
+* Submission is the **weakest controlled surface** across all platforms
+* Heavy reliance on user honesty with minimal validation
+* Most platforms treat submissions as “raw input”
+
+## What works
+
+* Simple forms improve contribution rate
+* Minimal friction increases data volume
+* Optional fields allow flexible input
+
+## What fails
+
+* High noise from unverified submissions
+* Duplicate entries across companies and roles
+* Inconsistent formatting (levels, titles, currencies)
+
+## Key Differences
+
+* Levels.fyi → stricter structured submission model
+* Glassdoor → open but noisy
+* AmbitionBox → semi-structured but inconsistent
+
+## Gaps
+
+* No strong duplicate detection
+* Weak normalization before storage
+* Lack of confidence scoring at ingestion
+
+---
+
+# 4. Comparison Features
+
+## Observations
+
+* Comparison is the **highest value decision feature**
+* Always reduces dataset to:
+
+  * Base
+  * Bonus
+  * Stock
+  * Total compensation
+  * Level equivalence
+
+## What works
+
+* Side-by-side structured comparison improves decision clarity
+* Delta-based differences (absolute + percentage) are effective
+* Level normalization helps cross-company comparisons
+
+## What fails
+
+* Currency mismatches often ignored
+* Pay period inconsistencies (monthly vs yearly)
+* Weak contextual explanation of differences
+
+## Key Differences
+
+* Levels.fyi → strongest comparison engine (clean + structured)
+* Glassdoor → weak comparison, mostly static views
+* 6figr → modern UX but less depth in normalization
+
+## Gaps
+
+* No unified compensation standard across platforms
+* Missing “decision-ready scoring layer”
+* Weak handling of non-equivalent roles across companies
+
+---
+
+# Summary Insight
+
+Across all platforms, the core pattern is:
+
+> Data is **structured and queryable**, partially comparable, but not fully decision-ready.
+
+---
+
+#  Key System Opportunity (Your Build Direction)
+
+The gaps across all platforms converge into 4 major problems:
+
+1.  Weak normalization (company, level, currency, role)
+2.  No strong data quality scoring
+3.  Inconsistent compensation representation globally
+4.  Comparison lacks decision intelligence layer
+
+---
+
 # OfferScope: Compensation Intelligence System
 
 OfferScope is a production-grade, full-stack platform designed to provide transparency into the modern workforce's compensation. It allows users to anonymously share, explore, and compare salary data with high-fidelity normalization and intelligence.
+
+
+
+
 
 ## 🚀 Key Features
 

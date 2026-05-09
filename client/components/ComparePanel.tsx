@@ -14,6 +14,98 @@ interface ComparePanelProps {
   };
 }
 
+const SalaryCard = ({
+  salary,
+  isHigher,
+}: {
+  salary: any;
+  isHigher: boolean;
+}) => (
+  <Card
+    className={cn(
+      "flex-1 relative overflow-hidden transition-all duration-500",
+      isHigher
+        ? "border-primary ring-2 ring-primary/20 shadow-2xl scale-[1.02] z-10"
+        : "opacity-80 grayscale-[0.2]",
+    )}
+  >
+    {isHigher && (
+      <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-4 py-1 rounded-bl-xl font-black text-xs uppercase tracking-widest flex items-center gap-1 shadow-lg">
+        <Trophy className="h-3 w-3" /> Best Offer
+      </div>
+    )}
+    <CardHeader className="pb-2">
+      <div className="flex flex-col">
+        <CardTitle className="text-3xl font-black tracking-tighter capitalize">
+          {salary.company}
+        </CardTitle>
+        <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest">
+          {salary.role}
+        </span>
+      </div>
+    </CardHeader>
+    <CardContent className="space-y-6 pt-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div className="p-3 rounded-xl bg-muted/50 border border-muted">
+          <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">
+            Level
+          </p>
+          <p className="font-bold text-sm">
+            {salary.level} ({salary.levelStandardized})
+          </p>
+        </div>
+        <div className="p-3 rounded-xl bg-muted/50 border border-muted">
+          <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">
+            Location
+          </p>
+          <p className="font-bold text-sm truncate">{salary.location}</p>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <div className="flex justify-between items-center pb-2 border-b border-dashed">
+          <span className="text-xs font-bold text-muted-foreground uppercase">
+            Base Salary
+          </span>
+          <span className="font-bold">
+            {salary.currency === "INR" ? "₹" : "$"}
+            {salary.baseSalary.toLocaleString()}
+          </span>
+        </div>
+        <div className="flex justify-between items-center pb-2 border-b border-dashed">
+          <span className="text-xs font-bold text-muted-foreground uppercase">
+            Bonus + Stock
+          </span>
+          <span className="font-bold">
+            {salary.currency === "INR" ? "₹" : "$"}
+            {(salary.bonus + salary.stock).toLocaleString()}
+          </span>
+        </div>
+      </div>
+
+      <div className="pt-2">
+        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">
+          Total Compensation
+        </p>
+        <div className="flex items-baseline gap-1">
+          <span
+            className={cn(
+              "text-4xl font-black tracking-tighter",
+              isHigher ? "text-primary" : "text-foreground",
+            )}
+          >
+            {salary.currency === "INR" ? "₹" : "$"}
+            {salary.totalCompensation.toLocaleString()}
+          </span>
+          <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+            / {salary.compensationPeriod.toLowerCase().replace("ly", "")}
+          </span>
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+);
+
 export const ComparePanel = ({
   salary1,
   salary2,
@@ -27,98 +119,6 @@ export const ComparePanel = ({
   const currencyMismatch = salary1.currency !== salary2.currency;
   const periodMismatch =
     salary1.compensationPeriod !== salary2.compensationPeriod;
-
-  const SalaryCard = ({
-    salary,
-    isHigher,
-  }: {
-    salary: any;
-    isHigher: boolean;
-  }) => (
-    <Card
-      className={cn(
-        "flex-1 relative overflow-hidden transition-all duration-500",
-        isHigher
-          ? "border-primary ring-2 ring-primary/20 shadow-2xl scale-[1.02] z-10"
-          : "opacity-80 grayscale-[0.2]",
-      )}
-    >
-      {isHigher && (
-        <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-4 py-1 rounded-bl-xl font-black text-xs uppercase tracking-widest flex items-center gap-1 shadow-lg">
-          <Trophy className="h-3 w-3" /> Best Offer
-        </div>
-      )}
-      <CardHeader className="pb-2">
-        <div className="flex flex-col">
-          <CardTitle className="text-3xl font-black tracking-tighter capitalize">
-            {salary.company}
-          </CardTitle>
-          <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest">
-            {salary.role}
-          </span>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-6 pt-4">
-        <div className="grid grid-cols-2 gap-4">
-          <div className="p-3 rounded-xl bg-muted/50 border border-muted">
-            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">
-              Level
-            </p>
-            <p className="font-bold text-sm">
-              {salary.level} ({salary.levelStandardized})
-            </p>
-          </div>
-          <div className="p-3 rounded-xl bg-muted/50 border border-muted">
-            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">
-              Location
-            </p>
-            <p className="font-bold text-sm truncate">{salary.location}</p>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <div className="flex justify-between items-center pb-2 border-b border-dashed">
-            <span className="text-xs font-bold text-muted-foreground uppercase">
-              Base Salary
-            </span>
-            <span className="font-bold">
-              {salary.currency === "INR" ? "₹" : "$"}
-              {salary.baseSalary.toLocaleString()}
-            </span>
-          </div>
-          <div className="flex justify-between items-center pb-2 border-b border-dashed">
-            <span className="text-xs font-bold text-muted-foreground uppercase">
-              Bonus + Stock
-            </span>
-            <span className="font-bold">
-              {salary.currency === "INR" ? "₹" : "$"}
-              {(salary.bonus + salary.stock).toLocaleString()}
-            </span>
-          </div>
-        </div>
-
-        <div className="pt-2">
-          <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">
-            Total Compensation
-          </p>
-          <div className="flex items-baseline gap-1">
-            <span
-              className={cn(
-                "text-4xl font-black tracking-tighter",
-                isHigher ? "text-primary" : "text-foreground",
-              )}
-            >
-              {salary.currency === "INR" ? "₹" : "$"}
-              {salary.totalCompensation.toLocaleString()}
-            </span>
-            <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
-              / {salary.compensationPeriod.toLowerCase().replace("ly", "")}
-            </span>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
 
   return (
     <div className="space-y-10">

@@ -19,30 +19,36 @@ export default function NotFound() {
 
       <div className="space-y-4 max-w-md">
         <h1 className="text-4xl font-black tracking-tighter italic">
-          Intelligence <span className="text-primary">Redacted.</span>
+          Page <span className="text-primary">Not Found.</span>
         </h1>
         <p className="text-muted-foreground font-medium leading-relaxed">
-          The compensation data you're looking for either doesn't exist or has been moved to a higher security clearance level.
+          The page you're looking for either doesn't exist or has
+          been moved.
         </p>
       </div>
 
-      <div className="flex flex-col sm:flex-row items-center gap-4 mt-10">
-        <Button asChild className="rounded-2xl h-14 px-8 font-bold gap-2 shadow-xl shadow-primary/20">
-          <Link href="/dashboard">
+      <div className="flex flex-col sm:flex-row gap-4 pt-4">
+        <Button className="rounded-2xl h-14 px-8 font-bold gap-2 shadow-xl shadow-primary/20">
+          <Link href="/dashboard" className="flex items-center gap-2">
             <Search className="h-4 w-4" />
             Explore Dashboard
           </Link>
         </Button>
-        <Button asChild variant="outline" className="rounded-2xl h-14 px-8 font-bold gap-2">
-          <Link href="/">
+        <Button
+          variant="outline"
+          className="rounded-2xl h-14 px-8 font-bold gap-2"
+        >
+          <Link href="/" className="flex items-center gap-2">
             <MoveLeft className="h-4 w-4" />
-            Back to Base
+            Back Home
           </Link>
         </Button>
       </div>
 
       <div className="mt-20 opacity-20 grayscale pointer-events-none select-none">
-          <p className="font-mono text-[10px] uppercase tracking-[0.5em]">System Error: Page_Not_Located // Error_Code: 0x404</p>
+        <p className="font-mono text-[10px] uppercase tracking-[0.5em]">
+          System Error: Page_Not_Located // Error_Code: 0x404
+        </p>
       </div>
     </div>
   );
