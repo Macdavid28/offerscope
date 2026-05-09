@@ -70,7 +70,7 @@ export default function CompanyAnalyticsPage() {
                 <h2 className="text-2xl font-black italic tracking-tight">Intelligence Not Found</h2>
                 <p className="text-muted-foreground">We couldn't retrieve any compensation data for <span className="text-primary font-bold">{companyName}</span> at this time.</p>
             </div>
-            <Button asChild className="w-full rounded-2xl h-14 font-bold text-lg shadow-xl shadow-primary/20">
+            <Button  className="w-full rounded-2xl h-14 font-bold text-lg shadow-xl shadow-primary/20">
                 <Link href="/dashboard">
                     <MoveLeft className="h-5 w-5 mr-2" />
                     Back to Dashboard
@@ -108,13 +108,13 @@ export default function CompanyAnalyticsPage() {
         </div>
         
         <div className="flex gap-3">
-            <Button asChild variant="outline" className="rounded-2xl h-12 px-6 font-bold gap-2 bg-card/50 border-white/5 backdrop-blur-sm shadow-sm hover:scale-[1.02] transition-transform">
+            <Button  variant="outline" className="rounded-2xl h-12 px-6 font-bold gap-2 bg-card/50 border-white/5 backdrop-blur-sm shadow-sm hover:scale-[1.02] transition-transform">
                 <Link href="/dashboard">
                     <LayoutDashboard className="h-4 w-4" />
                     Feed
                 </Link>
             </Button>
-            <Button asChild className="rounded-2xl h-12 px-8 font-bold gap-2 shadow-xl shadow-primary/20 hover:scale-[1.02] transition-transform">
+            <Button  className="rounded-2xl h-12 px-8 font-bold gap-2 shadow-xl shadow-primary/20 hover:scale-[1.02] transition-transform">
                 <Link href="/submit">
                     <TrendingUp className="h-4 w-4" />
                     Contribute

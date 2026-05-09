@@ -22,13 +22,16 @@ export default function ComparePage() {
   if (selectedForComparison.length < 2) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
-        <div className="h-20 w-20 rounded-full bg-secondary flex items-center justify-center text-3xl">⚖️</div>
+        <div className="h-20 w-20 rounded-full bg-secondary flex items-center justify-center text-3xl">
+          ⚖️
+        </div>
         <h2 className="text-2xl font-bold">Select Items to Compare</h2>
         <p className="text-muted-foreground max-w-md">
-          Go to the dashboard and select two salary records to see a side-by-side comparison of their compensation packages.
+          Go to the dashboard and select two salary records to see a
+          side-by-side comparison of their compensation packages.
         </p>
-        <Link 
-          href="/dashboard" 
+        <Link
+          href="/dashboard"
           className={cn(buttonVariants({ variant: "default" }))}
         >
           Go to Dashboard
@@ -53,24 +56,32 @@ export default function ComparePage() {
     <div className="space-y-8">
       <div className="flex justify-between items-end">
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">Salary Comparison</h1>
-          <p className="text-muted-foreground">Analyzing the delta between two compensation packages.</p>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Salary Comparison
+          </h1>
+          <p className="text-muted-foreground">
+            Analyzing the delta between two compensation packages.
+          </p>
         </div>
-        <Button variant="outline" onClick={clearComparison}>Clear Selection</Button>
+        <Button variant="outline" onClick={clearComparison}>
+          Clear Selection
+        </Button>
       </div>
 
       {error ? (
         <div className="p-10 text-center text-destructive bg-destructive/10 rounded-lg">
           {error}
         </div>
-      ) : result && (
-        <ComparePanel 
-          salary1={result.salary1} 
-          salary2={result.salary2} 
-          difference={result.difference} 
-          normalized={result.normalized}
-          comparison={result.comparison}
-        />
+      ) : (
+        result && (
+          <ComparePanel
+            salary1={result.salary1}
+            salary2={result.salary2}
+            difference={result.difference}
+            normalized={(result as any).normalized}
+            comparison={(result as any).comparison}
+          />
+        )
       )}
     </div>
   );
