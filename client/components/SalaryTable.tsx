@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useSalaryStore } from "@/store/salaryStore";
 import { useSalaries } from "@/hooks/useSalaries";
 import { cn, getCurrencySymbol } from "@/lib/utils";
-import { ChevronLeft, ChevronRight, X, Briefcase, MapPin, DollarSign, Info } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, Briefcase, MapPin, Banknote, Info } from "lucide-react";
 
 interface Salary {
   id: string;
@@ -386,11 +386,11 @@ export const SalaryTable = ({
                 </div>
                 <div className="flex justify-between items-center p-4 rounded-xl bg-primary/5 border border-primary/10 mt-2">
                   <div className="flex items-center gap-2">
-                    <DollarSign className="h-4 w-4 text-primary" />
+                    <Banknote className="h-4 w-4 text-primary" />
                     <span className="text-sm font-black uppercase tracking-widest text-primary">Total Comp</span>
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-black tracking-tighter text-primary">
+                    <p className="text-xl font-black tracking-tighter text-primary">
                       {viewingSalary.currency} {viewingSalary.totalCompensation.toLocaleString()}
                     </p>
                     <p className="text-[10px] font-bold text-muted-foreground uppercase">Per {viewingSalary.compensationPeriod.toLowerCase().replace('ly', '')}</p>

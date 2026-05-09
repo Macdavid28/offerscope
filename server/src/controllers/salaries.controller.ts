@@ -8,10 +8,8 @@ import {
   normalizeCompany,
   normalizeLevel,
   buildFilterQuery,
-  calculateMedian,
   enrichSalary,
   calculatePercentileValue,
-  getLevelScore,
 } from "../utils/salary.utils.ts";
 import { ingestSalarySchema } from "../schemas/salary.schema.ts";
 
@@ -282,11 +280,14 @@ export const compareSalaries = async (
   const score1 = enriched1.totalCompensation * (enriched1.percentileRank / 100);
   const score2 = enriched2.totalCompensation * (enriched2.percentileRank / 100);
 
-  const winner = enriched1.totalCompensation > enriched2.totalCompensation ? enriched1.id : enriched2.id;
-  
+  const winner =
+    enriched1.totalCompensation > enriched2.totalCompensation
+      ? enriched1.id
+      : enriched2.id;
+
   let levelGapInsight = "Equivalent Level Strength";
   const levelDiff = enriched1.levelScore - enriched2.levelScore;
-  
+
   if (levelDiff > 0) {
     levelGapInsight = `${enriched1.company} offer is for a higher standardized level`;
   } else if (levelDiff < 0) {
@@ -312,13 +313,13 @@ export const compareSalaries = async (
         raw: salary1.level,
         standardized: salary1.levelStandardized,
         score: enriched1.levelScore,
-        strength: enriched1.levelStrength
+        strength: enriched1.levelStrength,
       },
       level2: {
         raw: salary2.level,
         standardized: salary2.levelStandardized,
         score: enriched2.levelScore,
-        strength: enriched2.levelStrength
+        strength: enriched2.levelStrength,
       },
     },
   };
