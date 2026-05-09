@@ -181,7 +181,9 @@ export const getCompanyStats = async (
 
   const total = allSalaries.length;
   // Use normalized USD values for global median/percentile accuracy
-  const totalUSDComps = allSalaries.map((s) => normalizeCompensation(s).totalUSD);
+  const totalUSDComps = allSalaries.map(
+    (s) => normalizeCompensation(s).totalUSD,
+  );
   const medianUSD = calculatePercentileValue(totalUSDComps, 50);
   const p75USD = calculatePercentileValue(totalUSDComps, 75);
   const p90USD = calculatePercentileValue(totalUSDComps, 90);
@@ -191,7 +193,9 @@ export const getCompanyStats = async (
       acc[curr.levelStandardized] = { count: 0, usdSalaries: [] };
     }
     acc[curr.levelStandardized].count++;
-    acc[curr.levelStandardized].usdSalaries.push(normalizeCompensation(curr).totalUSD);
+    acc[curr.levelStandardized].usdSalaries.push(
+      normalizeCompensation(curr).totalUSD,
+    );
     return acc;
   }, {});
 
